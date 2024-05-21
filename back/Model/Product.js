@@ -2,15 +2,21 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const productSchema = Schema(
     {
-        email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-        name: { type: String, required: true },
-        level: { type: string, default: "customer" },
+        sku: { type: String, required: true, unique: true },
+        name: { type: String, require: true },
+        iamge: { type: String, require: true },
+        category: { type: Array, require: true },
+        descripton: { type: String, require: true },
+        price: { type: Number, require: true },
+        stock: { type: Object, require: true },
+        status: { type: String, default: "active" },
+        isDeleted: { type: boolean, default: false },
     },
     { timestamps: true }
 );
 productSchema.methods.toJSON = function () {
     const obj = this._doc;
+
     delete obj.__V;
     delete obj.updateAt;
     delete obj.createAt;
