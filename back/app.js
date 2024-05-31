@@ -19,9 +19,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // req.body 객체로 인식하기 위함
 app.use("/api", indexRouter);
 
-const mongoURI = process.env.LOCAL_DB_ADDRESS;
+// MongoDB URI 설정
+const mongoURI =
+    process.env.DB_ADDRESS ||
+    "mongodb+srv://kjyun2187:rlawldbs2514@cluster0.srjsf9z.mongodb.net/shopping";
+
 mongoose
-    .connect(mongoURI)
+    .connect(mongoURI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
     .then(() => {
         console.log("Mongoose connected");
     })
