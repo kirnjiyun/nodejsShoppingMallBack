@@ -17,7 +17,7 @@ app.use(
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // req.body 객체로 인식하기 위함
-app.use("/api", indexRouter);
+app.use("/api", indexRouter); // 모든 API 라우트는 /api로 시작합니다.
 
 // MongoDB URI 설정
 const mongoURI =
