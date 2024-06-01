@@ -9,7 +9,11 @@ require("dotenv").config();
 // CORS 설정
 app.use(
     cors({
-        origin: ["http://localhost:3000", "https://jiyun-shopping.netlify.app"], // 허용할 도메인들
+        origin: [
+            "http://localhost:3000",
+            "https://jiyun-shopping.netlify.app",
+            "https://master--jiyun-shopping.netlify.app",
+        ], // 허용할 도메인들
         methods: ["GET", "POST"], // 허용할 HTTP 메소드
         allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더
     })
