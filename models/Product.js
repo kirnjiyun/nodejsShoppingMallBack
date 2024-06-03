@@ -4,7 +4,7 @@ const productSchema = Schema(
     {
         sku: { type: String, required: true, unique: true },
         name: { type: String, require: true },
-        iamge: { type: String, require: true },
+        image: { type: String, require: true },
         category: { type: Array, require: true },
         descripton: { type: String, require: true },
         price: { type: Number, require: true },
