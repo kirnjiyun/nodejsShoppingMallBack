@@ -9,4 +9,5 @@ router.post(
     authController.checkAdminPermission,
     productController.createProduct
 );
+router.get("/", productController.getProduct);
 module.exports = router;
