@@ -10,7 +10,7 @@ const productSchema = Schema(
         price: { type: Number, require: true },
         stock: { type: Object, require: true },
         status: { type: String, default: "active" },
-        isDeleted: { type: boolean, default: false },
+        isDeleted: { type: Boolean, default: false },
     },
     { timestamps: true }
 );
