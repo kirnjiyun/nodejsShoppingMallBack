@@ -1,5 +1,7 @@
 const productController = {};
 const Product = require("../models/Product");
+const PAGE_SIZE = 3;
+
 productController.createProduct = async (req, res) => {
     try {
         const {
@@ -34,23 +36,24 @@ productController.createProduct = async (req, res) => {
 productController.getProduct = async (req, res) => {
     try {
         const { page = 1, name } = req.query;
-        const pageSize = 10; // 페이지당 항목 수
         const condition = name ? { name: { $regex: name, $options: "i" } } : {};
 
-        const products = await Product.find(condition)
-            .skip((page - 1) * pageSize)
-            .limit(pageSize);
+        let response = {};
 
-        const totalProducts = await Product.countDocuments(condition);
+        const query = Product.find(condition)
+            .skip((page - 1) * PAGE_SIZE)
+            .limit(PAGE_SIZE);
 
-        res.status(200).json({
-            status: "success",
-            data: products,
-            totalPages: Math.ceil(totalProducts / pageSize),
-            currentPage: parseInt(page),
-        });
+        const totalItemNum = await Product.find(condition).count();
+        const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+
+        response.totalPageNum = totalPageNum; // 변수 이름 변경
+        const productList = await query.exec();
+        response.data = productList;
+
+        res.status(200).json(response);
     } catch (error) {
-        res.status(400).json({ status: "error", error: error.message });
+        res.status(400).json({ status: "fail", error: error.message });
     }
 };
 
