@@ -1,11 +1,12 @@
 const authController = {};
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 require("dotenv").config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 authController.loginWithEmail = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -20,6 +21,21 @@ authController.loginWithEmail = async (req, res) => {
             }
         }
         throw new Error("이메일 또는 비밀번호가 틀렸습니다.");
+    } catch (error) {
+        res.status(400).json({ status: "fail", error: error.message });
+    }
+};
+authController.loginWithGoogle = async (req, res) => {
+    try {
+        const { credential } = req.body;
+        const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: GOOGLE_CLIENT_ID,
+        });
+
+        const { email, name } = ticket.getPayload();
+        console.log("first,email", email, name);
     } catch (error) {
         res.status(400).json({ status: "fail", error: error.message });
     }
