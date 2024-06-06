@@ -14,7 +14,7 @@ app.use(
             "https://jiyun-shopping.netlify.app",
             "https://master--jiyun-shopping.netlify.app",
         ], // 허용할 도메인들
-        methods: ["GET", "POST"], // 허용할 HTTP 메소드
+        methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 HTTP 메소드
         allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더
     })
 );
