@@ -60,18 +60,50 @@ productController.getProductAll = async (req, res) => {
     try {
         const { name } = req.query;
         const condition = name ? { name: { $regex: name, $options: "i" } } : {};
-
         const query = Product.find(condition);
-
         const productList = await query.exec();
         const totalItemNum = productList.length;
-
         const response = {
             totalItemNum: totalItemNum,
             data: productList,
         };
 
         res.status(200).json(response);
+    } catch (error) {
+        res.status(400).json({ status: "fail", error: error.message });
+    }
+};
+productController.updateProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const {
+            sku,
+            name,
+            size,
+            image,
+            category,
+            description,
+            price,
+            stock,
+            status,
+        } = req.body;
+        const product = await Product.findByIdAndUpdate(
+            { _id: productId },
+            {
+                sku,
+                name,
+                size,
+                image,
+                category,
+                description,
+                price,
+                stock,
+                status,
+            },
+            { new: true }
+        );
+        if (!product) throw new Error("item doesn't exit");
+        res.status(200).json({ status: "success", data: product });
     } catch (error) {
         res.status(400).json({ status: "fail", error: error.message });
     }
