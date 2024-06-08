@@ -11,6 +11,7 @@ router.post(
 );
 router.get("/", productController.getProduct);
 router.get("/all", productController.getProductAll);
+router.get("/:id", productController.getProductById);
 router.put(
     "/:id",
     authController.authenticate,
