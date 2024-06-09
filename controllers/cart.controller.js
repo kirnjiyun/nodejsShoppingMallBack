@@ -27,12 +27,10 @@ cartController.addItemToCart = async (req, res) => {
             (item) => item.productId.equals(productId) && item.size === size
         );
         if (existItem) {
-            return res
-                .status(400)
-                .json({
-                    status: "fail",
-                    error: "아이템이 이미 카트에 존재합니다.",
-                });
+            return res.status(400).json({
+                status: "fail",
+                error: "아이템이 이미 카트에 존재합니다.",
+            });
         }
 
         // 카트에 아이템 추가
@@ -44,6 +42,22 @@ cartController.addItemToCart = async (req, res) => {
             data: cart,
             cartItemQty: cart.items.length,
         });
+    } catch (error) {
+        return res.status(400).json({ status: "fail", error: error.message });
+    }
+};
+
+cartController.getCart = async (req, res) => {
+    try {
+        const { userId } = req;
+        const cart = await Cart.findOne({ userId }).populate({
+            path: "items",
+            populate: {
+                path: "productId",
+                model: "Product",
+            },
+        });
+        res.status(200).json({ status: "success", data: cart.items });
     } catch (error) {
         return res.status(400).json({ status: "fail", error: error.message });
     }
