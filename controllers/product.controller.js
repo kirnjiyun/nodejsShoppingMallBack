@@ -49,7 +49,7 @@ productController.getProduct = async (req, res) => {
         const totalItemNum = await Product.find(condition).count();
         const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
 
-        response.totalPageNum = totalPageNum; // 변수 이름 변경
+        response.totalPageNum = totalPageNum;
         const productList = await query.exec();
         response.data = productList;
 
@@ -58,6 +58,7 @@ productController.getProduct = async (req, res) => {
         res.status(400).json({ status: "fail", error: error.message });
     }
 };
+
 productController.getProductAll = async (req, res) => {
     try {
         const { name } = req.query;
@@ -86,6 +87,7 @@ productController.getProductById = async (req, res) => {
         return res.status(400).json({ status: "fail", error: error.message });
     }
 };
+
 productController.updateProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -121,6 +123,7 @@ productController.updateProduct = async (req, res) => {
         res.status(400).json({ status: "fail", error: error.message });
     }
 };
+
 productController.deleteProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -134,4 +137,41 @@ productController.deleteProduct = async (req, res) => {
         return res.status(400).json({ status: "fail", error: error.message });
     }
 };
+
+productController.checkStock = async (item) => {
+    //내가 사려는 아이템의 실제 재고 가져오기
+    const product = await Product.findById(item.productId);
+    //내가 사려는 개수랑 재고 비교하기
+    if (product.stock[item.size] < item.qty) {
+        return {
+            isVerify: false,
+            message: `${product.name}의  ${item.size}사이즈 재고가 부족합니다.`,
+        };
+    }
+    //괜찮으면 재고에서 qty빼고 성공
+    const newStock = { ...product.stock };
+    newStock[item.size] -= item.qty;
+    product.stock = newStock;
+    await product.save();
+    return { isVerify: true };
+};
+
+productController.checkItemListStock = async (itemList) => {
+    const insufficientStockItems = [];
+    await Promise.all(
+        itemList.map(async (item) => {
+            const stockCheck = await productController.checkStock(item);
+            if (!stockCheck.isVerify) {
+                insufficientStockItems.push({
+                    item,
+                    message: stockCheck.message,
+                });
+            }
+            return stockCheck;
+        })
+    );
+
+    return insufficientStockItems;
+};
+
 module.exports = productController;
