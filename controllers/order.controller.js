@@ -27,6 +27,8 @@ orderController.createOrder = async (req, res) => {
             orderNum: generateRandomString(10), // 올바른 함수 호출
         });
         await newOrder.save();
+        //카트 비우기
+
         res.status(200).json({
             status: "success",
             orderNum: newOrder.orderNum,
