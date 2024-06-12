@@ -11,7 +11,7 @@ userController.createUser = async (req, res) => {
         if (!email || !password || !name) {
             return res
                 .status(400)
-                .json({ status: "fail", err: "모든 필드를 입력해주세요." });
+                .json({ status: "fail", error: "모든 필드를 입력해주세요." });
         }
 
         const user = await User.findOne({ email });
@@ -27,12 +27,13 @@ userController.createUser = async (req, res) => {
             level: level ? level : "customer",
         });
         await newUser.save();
-        return res.status(200).json({ status: "success" });
+        return res.status(200).json({ status: "success", user: newUser });
     } catch (err) {
         console.error("Error:", err.message);
-        res.status(400).json({ status: "fail", err: err.message });
+        res.status(400).json({ status: "fail", error: err.message });
     }
 };
+
 userController.getUser = async (req, res) => {
     try {
         const { userId } = req;
@@ -42,7 +43,7 @@ userController.getUser = async (req, res) => {
         }
         throw new Error("Invalid token");
     } catch (error) {
-        return res.status(400).json({ status: "error", error: error.message });
+        return res.status(400).json({ status: "fail", error: error.message });
     }
 };
 
