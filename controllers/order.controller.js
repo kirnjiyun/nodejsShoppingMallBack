@@ -1,8 +1,8 @@
 const orderController = {};
 const Order = require("../models/Order");
-const { generateRandomString } = require("../utils/randomStringGenerator"); // 객체 구조 분해를 통해 함수 가져오기
+const { generateRandomString } = require("../utils/randomStringGenerator");
 const productController = require("./product.controller");
-
+const PAGE_SIZE = 3;
 orderController.createOrder = async (req, res) => {
     try {
         const { userId } = req;
@@ -32,6 +32,31 @@ orderController.createOrder = async (req, res) => {
         res.status(200).json({
             status: "success",
             orderNum: newOrder.orderNum,
+        });
+    } catch (error) {
+        return res.status(400).json({ status: "fail", error: error.message });
+    }
+};
+
+orderController.getOrder = async (req, res, next) => {
+    try {
+        const { userId } = req;
+
+        const orderList = await Order.find({ userId: userId }).populate({
+            path: "items",
+            populate: {
+                path: "productId",
+                model: "Product",
+                select: "image name",
+            },
+        });
+        const totalItemNum = await Order.find({ userId: userId }).count();
+
+        const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+        res.status(200).json({
+            status: "success",
+            data: orderList,
+            totalPageNum,
         });
     } catch (error) {
         return res.status(400).json({ status: "fail", error: error.message });
