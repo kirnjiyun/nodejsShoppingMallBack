@@ -29,41 +29,59 @@ authController.loginWithEmail = async (req, res) => {
         res.status(400).json({ status: "fail", error: error.message });
     }
 };
-
 authController.loginWithGoogle = async (req, res) => {
     try {
         const { credential } = req.body;
         const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+        // ID 토큰을 검증하여 사용자 정보를 얻음
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
             audience: GOOGLE_CLIENT_ID,
         });
 
-        const { email, name } = ticket.getPayload();
+        // 사용자 정보 추출
+        const payload = ticket.getPayload();
+        const { email, name } = payload;
+
+        // 사용자 정보가 유효한지 확인
+        if (!email || !name) {
+            throw new Error("Invalid user information from Google");
+        }
+
+        // 데이터베이스에서 사용자 조회
         let user = await User.findOne({ email });
         if (!user) {
-            const randomPassword = "" + Math.floor(Math.random() * 100000000);
+            const randomPassword = Math.random().toString(36).slice(-8); // 임시 비밀번호 생성
             const salt = await bcrypt.genSalt(10);
-            const newPassword = await bcrypt.hash(randomPassword, salt);
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+            // 새로운 사용자 생성 및 저장
             user = new User({
-                name: name,
-                email: email,
-                password: newPassword,
+                name,
+                email,
+                password: hashedPassword,
             });
             await user.save();
         }
-        const sessionToken = jwt.sign({ id: user._id }, JWT_SECRET_KEY, {
+
+        // JWT 토큰 생성
+        const token = jwt.sign({ id: user._id }, JWT_SECRET_KEY, {
             expiresIn: "1h",
         });
+
+        // 응답으로 사용자 정보와 토큰 반환
         res.status(200).json({
             status: "success",
             user,
-            token: sessionToken,
+            token,
         });
     } catch (error) {
+        console.error("Error during Google login:", error.message);
         res.status(400).json({ status: "fail", error: error.message });
     }
 };
+
 authController.loginWithKakao = async (req, res) => {
     try {
         const { code } = req.body;
